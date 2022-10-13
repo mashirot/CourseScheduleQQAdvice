@@ -1,2 +1,10 @@
-package ski.mashiro.permission;public class UserPermission {
+package ski.mashiro.permission;
+
+/**
+ * @author MashiroT
+ */
+public class UserPermission {
+
+
+
 }
