@@ -26,7 +26,7 @@ public class CourseData {
     public static Result getSchedule(User user, String qq) {
         try {
             createUserCourseFolder(qq);
-            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + ".json");
+            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + ".json");
             if (!courseFile.exists()) {
                 if (!courseFile.createNewFile()) {
                     return new Result(Code.COURSE_FILE_CREATE_FAILED, null);
@@ -47,7 +47,7 @@ public class CourseData {
     public static Result getEffSchedule(User user, String qq) {
         try {
             createUserCourseFolder(qq);
-            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "eff" + ".json");
+            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "eff" + ".json");
             if (!courseFile.exists()) {
                 if (!courseFile.createNewFile()) {
                     return new Result(Code.COURSE_FILE_CREATE_FAILED, null);
@@ -69,7 +69,7 @@ public class CourseData {
         Result todayEffSchedule = HttpRequest.getTodayEffSchedule(user);
         if (todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
             try {
-                File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "dailyEff" + ".json");
+                File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
                 FileUtils.write(dailyEffFile, OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), "utf-8");
 
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
@@ -88,7 +88,7 @@ public class CourseData {
 
     public static Result getUpcoming(User user, String qq) {
         try {
-            File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "dailyEff" + ".json");
+            File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
             if (!dailyEffFile.exists()) {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }
@@ -135,11 +135,11 @@ public class CourseData {
     }
 
     private static void createUserCourseFolder(String qq) throws IOException {
-        File coursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder(), "\\Courses");
+        File coursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder(), "/Courses");
         if (!coursesFolder.exists()) {
             FileUtils.forceMkdir(coursesFolder);
         }
-        File userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses", qq);
+        File userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses", qq);
         if (!userCoursesFolder.exists()) {
             FileUtils.forceMkdir(userCoursesFolder);
         }
