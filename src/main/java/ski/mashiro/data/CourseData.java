@@ -26,7 +26,7 @@ public class CourseData {
     public static Result getSchedule(User user, String qq) {
         try {
             createUserCourseFolder(qq);
-            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + ".json");
+            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + ".json");
             if (!courseFile.exists()) {
                 if (!courseFile.createNewFile()) {
                     return new Result(Code.COURSE_FILE_CREATE_FAILED, null);
@@ -47,7 +47,7 @@ public class CourseData {
     public static Result getEffSchedule(User user, String qq) {
         try {
             createUserCourseFolder(qq);
-            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "eff" + ".json");
+            File courseFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "eff" + ".json");
             if (!courseFile.exists()) {
                 if (!courseFile.createNewFile()) {
                     return new Result(Code.COURSE_FILE_CREATE_FAILED, null);
@@ -69,7 +69,7 @@ public class CourseData {
         Result todayEffSchedule = HttpRequest.getTodayEffSchedule(user);
         if (todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
             try {
-                File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
+                File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "dailyEff" + ".json");
                 FileUtils.write(dailyEffFile, OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), "utf-8");
 
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
@@ -88,7 +88,7 @@ public class CourseData {
 
     public static Result getUpcoming(User user, String qq) {
         try {
-            File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
+            File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq, user.getUserCode() + "dailyEff" + ".json");
             if (!dailyEffFile.exists()) {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }
@@ -135,21 +135,24 @@ public class CourseData {
     }
 
     private static void createUserCourseFolder(String qq) throws IOException {
-        File coursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder(), "/Courses");
+        File coursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder(), "\\Courses");
         if (!coursesFolder.exists()) {
             FileUtils.forceMkdir(coursesFolder);
         }
-        File userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses", qq);
+        File userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses", qq);
         if (!userCoursesFolder.exists()) {
             FileUtils.forceMkdir(userCoursesFolder);
         }
     }
 
     public static void initData() {
-        for (String qq : Config.WHITELIST.getWhitelist()) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        try {
+            for (String qq : Config.WHITELIST.getWhitelist()) {
                 Result todayEffSchedule = getTodayEffSchedule((User) UserData.getUser(qq).getData(), qq);
+                if (!todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
+                    continue;
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm");
                 DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), List.class), Course.class);
                 DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
                 Calendar now = Calendar.getInstance();
@@ -161,9 +164,9 @@ public class CourseData {
                     beforeTime.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), Calendar.MINUTE, beforeTime.get(Calendar.MINUTE) - 15, 0);
                     dateList.add(beforeTime.getTime());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

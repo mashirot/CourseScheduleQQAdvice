@@ -1,32 +1,34 @@
 package ski.mashiro.pojo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author MashiroT
  */
 public class Whitelist {
-    private List<String> whitelist;
+    private String[] whitelist = {"12345"};
 
     public Whitelist() {
     }
 
-    public Whitelist(List<String> whitelist) {
+    public Whitelist(String[] whitelist) {
         this.whitelist = whitelist;
     }
 
-    public List<String> getWhitelist() {
+    public String[] getWhitelist() {
         return whitelist;
     }
 
-    public void setWhitelist(List<String> whitelist) {
+    public void setWhitelist(String[] whitelist) {
         this.whitelist = whitelist;
     }
 
     @Override
     public String toString() {
         return "Whitelist{" +
-                "whitelist=" + whitelist +
+                "whitelist=" + Arrays.toString(whitelist) +
                 '}';
     }
 }

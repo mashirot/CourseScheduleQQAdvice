@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc2'
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation 'commons-io:commons-io:2.11.0'
     // https://mvnrepository.com/artifact/junit/junit

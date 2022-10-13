@@ -15,8 +15,8 @@ import java.io.File;
 public class Config {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
-    private static final File CONFIG_FILE = new File(CourseScheduleQQAdvice.INSTANCE.getConfigFolder() + "/Config.yml");
-    private static final File WHITELIST_FILE = new File(CourseScheduleQQAdvice.INSTANCE.getConfigFolder() + "/whitelist.yml");
+    private static final File CONFIG_FILE = new File(CourseScheduleQQAdvice.INSTANCE.getConfigFolder() + "\\Config.yml");
+    private static final File WHITELIST_FILE = new File(CourseScheduleQQAdvice.INSTANCE.getConfigFolder() + "\\Whitelist.yml");
 
     public static Configuration CONFIGURATION = null;
     public static Whitelist WHITELIST = null;

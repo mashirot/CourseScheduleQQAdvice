@@ -30,7 +30,7 @@ public class UserData {
             if (!usersFolder.exists()) {
                 FileUtils.forceMkdir(usersFolder);
             }
-            File userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Users", qq);
+            File userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Users", qq);
             if (!userFolder.exists()) {
                 FileUtils.forceMkdir(userFolder);
             }
@@ -39,7 +39,7 @@ public class UserData {
             if (!result.getCode().equals(Code.LIST_ALL_SUCCESS)) {
                 return new Result(Code.GET_USER_FAILED, null);
             }
-            File userFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Users/" + qq, userCode + ".json");
+            File userFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Users\\" + qq, userCode + ".json");
             if (userFile.exists() || !userFile.createNewFile()) {
                 delCache(user.getUserCode(), qq);
                 return new Result(Code.USER_FILE_CREATE_FAILED, null);
@@ -65,8 +65,8 @@ public class UserData {
     }
 
     public static Result delUser(String userCode, String qq) {
-        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Users/" + qq).listFiles();
-        File[] userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq).listFiles();
+        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Users\\" + qq).listFiles();
+        File[] userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq).listFiles();
         if (userFolder == null || userCoursesFolder == null) {
             return new Result(Code.FOLDER_OPEN_ERR, null);
         }
@@ -97,7 +97,7 @@ public class UserData {
     }
 
     public static Result getUser(String qq) {
-        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Users/" + qq).listFiles();
+        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Users\\" + qq).listFiles();
         if (userFolder == null) {
             return new Result(Code.GET_USER_FAILED, null);
         }
@@ -124,8 +124,8 @@ public class UserData {
     }
 
     public static void delCache(String userCode, String qq) {
-        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Users/" + qq).listFiles();
-        File[] userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq).listFiles();
+        File[] userFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Users\\" + qq).listFiles();
+        File[] userCoursesFolder = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "\\Courses\\" + qq).listFiles();
         boolean flag = false;
         delFileRs(userCode, userFolder, flag);
         delFileRs(userCode, userCoursesFolder, flag);

@@ -23,7 +23,6 @@ import java.util.concurrent.*;
 public class TimerTask {
     private static int i = 0;
     public static void openTasks() {
-        Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
         Calendar now = Calendar.getInstance();
         now.setTime(new Date());
         Calendar morning = Calendar.getInstance();
@@ -57,6 +56,7 @@ public class TimerTask {
                     } else {
                         sb.append("今日无课,好好休息");
                     }
+                    Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                     for (Friend friend : bot.getFriends()) {
                         if ((friend.getId() + "").equals(qq)) {
                             friend.sendMessage(sb.toString());
@@ -72,6 +72,7 @@ public class TimerTask {
             for (String qq : Config.WHITELIST.getWhitelist()) {
                 for (Date date : CourseData.beforeStartTimeList.get(qq)) {
                     if (date.getTime() == System.currentTimeMillis()) {
+                        Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                         for (Friend friend : bot.getFriends()) {
                             if ((friend.getId() + "").equals(qq)) {
                                 Result upcoming = CourseData.getUpcoming((User) UserData.getUser(friend.getId() + "").getData(), friend.getId() + "");

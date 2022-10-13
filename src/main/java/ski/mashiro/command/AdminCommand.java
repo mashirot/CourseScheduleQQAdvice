@@ -1,14 +1,16 @@
 package ski.mashiro.command;
 
 import net.mamoe.mirai.console.command.CommandSender;
+import net.mamoe.mirai.console.command.FriendCommandSender;
+import net.mamoe.mirai.console.command.SystemCommandSender;
 import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import org.jetbrains.annotations.NotNull;
 import ski.mashiro.CourseScheduleQQAdvice;
 import ski.mashiro.config.Config;
+import ski.mashiro.pojo.Code;
+import ski.mashiro.pojo.Result;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author MashiroT
@@ -22,29 +24,39 @@ public class AdminCommand extends JCompositeCommand {
     @SubCommand("add")
     @Description("增加白名单")
     public void addWhitelist(@NotNull CommandSender sender, String qq) {
+        if (!(sender instanceof FriendCommandSender)) {
+            sender.sendMessage("发送者只能为好友");
+            return;
+        }
         if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
             sender.sendMessage("无权限");
             return;
         }
-        List<String> whitelist = Config.WHITELIST.getWhitelist();
+        String[] whitelistArray = Config.WHITELIST.getWhitelist();
+        List<String> whitelist = new ArrayList<>(Arrays.asList(whitelistArray));
         for (String s : whitelist) {
             if (s.equals(qq)) {
-                sender.sendMessage("重复添加");
                 return;
             }
         }
         whitelist.add(qq);
         Config.saveConfig();
+        sender.sendMessage("添加成功");
     }
 
     @SubCommand("del")
     @Description("删除白名单")
     public void delWhitelist(@NotNull CommandSender sender, String qq) {
+        if (!(sender instanceof FriendCommandSender)) {
+            sender.sendMessage("发送者只能为好友");
+            return;
+        }
         if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
             sender.sendMessage("无权限");
             return;
         }
-        List<String> whitelist = Config.WHITELIST.getWhitelist();
+        String[] whitelistArray = Config.WHITELIST.getWhitelist();
+        List<String> whitelist = new ArrayList<>(Arrays.asList(whitelistArray));
         Iterator<String> it = whitelist.listIterator();
         while (it.hasNext()) {
             String item = it.next();
@@ -58,8 +70,19 @@ public class AdminCommand extends JCompositeCommand {
         Config.saveConfig();
     }
 
-    @SubCommand("test")
-    public void test(@NotNull CommandSender sender) {
-        sender.sendMessage("test");
+    @SubCommand("reload")
+    public void reload(@NotNull CommandSender sender) {
+        if (!(sender instanceof SystemCommandSender)) {
+            if (!(sender instanceof FriendCommandSender)) {
+                sender.sendMessage("发送者只能为好友");
+                return;
+            }
+            if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
+                sender.sendMessage("无权限");
+                return;
+            }
+        }
+        Config.loadConfig();
+        sender.sendMessage("重载成功");
     }
 }
