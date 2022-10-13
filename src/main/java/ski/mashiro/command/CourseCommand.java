@@ -60,7 +60,7 @@ public class CourseCommand extends JCompositeCommand {
         sender.sendMessage("类型错误, eff\\all");
     }
 
-    @SubCommand("today")
+    @SubCommand({"today", "t"})
     public void today(@NotNull CommandSender sender) {
         Result result = verifyIllegal(sender);
         if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {
@@ -99,7 +99,7 @@ public class CourseCommand extends JCompositeCommand {
 
     }
 
-    @SubCommand({"next", "upcoming"})
+    @SubCommand({"next", "upcoming", "n"})
     public void upcoming(@NotNull CommandSender sender) {
         Result result = verifyIllegal(sender);
         if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {

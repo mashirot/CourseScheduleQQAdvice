@@ -7,8 +7,6 @@ import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import org.jetbrains.annotations.NotNull;
 import ski.mashiro.CourseScheduleQQAdvice;
 import ski.mashiro.config.Config;
-import ski.mashiro.pojo.Code;
-import ski.mashiro.pojo.Result;
 
 import java.util.*;
 
@@ -40,6 +38,11 @@ public class AdminCommand extends JCompositeCommand {
             }
         }
         whitelist.add(qq);
+        String[] rs = new String[whitelist.size()];
+        for (int i = 0; i < whitelist.size(); i++) {
+            rs[i] = whitelist.get(i);
+        }
+        Config.WHITELIST.setWhitelist(rs);
         Config.saveConfig();
         sender.sendMessage("添加成功");
     }
@@ -63,11 +66,16 @@ public class AdminCommand extends JCompositeCommand {
             if (item.equals(qq)) {
                 it.remove();
                 sender.sendMessage("删除成功");
+                String[] rs = new String[whitelist.size()];
+                for (int i = 0; i < whitelist.size(); i++) {
+                    rs[i] = whitelist.get(i);
+                }
+                Config.WHITELIST.setWhitelist(rs);
+                Config.saveConfig();
                 return;
             }
         }
         sender.sendMessage("不在名单内");
-        Config.saveConfig();
     }
 
     @SubCommand("reload")
