@@ -158,9 +158,12 @@ public class CourseData {
                 if (!todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
                     continue;
                 }
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
                 DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), List.class), Course.class);
                 DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
+                if (DailyEffCourseList.size() == 0) {
+                    return;
+                }
                 Calendar now = Calendar.getInstance();
                 Calendar beforeTime = Calendar.getInstance();
                 List<Date> dateList;

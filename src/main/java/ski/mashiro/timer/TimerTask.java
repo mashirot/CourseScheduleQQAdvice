@@ -70,6 +70,9 @@ public class TimerTask {
 
         pool.scheduleAtFixedRate(() -> {
             for (String qq : Config.WHITELIST.getWhitelist()) {
+                if (CourseData.beforeStartTimeList.get(qq) == null || CourseData.beforeStartTimeList.get(qq).size() == 0) {
+                    continue;
+                }
                 for (Date date : CourseData.beforeStartTimeList.get(qq)) {
                     if (date.getTime() == System.currentTimeMillis()) {
                         Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
@@ -86,7 +89,6 @@ public class TimerTask {
                     }
                 }
             }
-
         }, 0, 1, TimeUnit.MINUTES);
 
     }
