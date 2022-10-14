@@ -104,8 +104,13 @@ public class CourseData {
             int cHour = currentTime.get(Calendar.HOUR_OF_DAY);
             int cMinute = currentTime.get(Calendar.MINUTE);
             Calendar startTime = Calendar.getInstance();
-            beforeStartTimeList.get(qq).clear();
-            List<Date> dateList = beforeStartTimeList.get(qq);
+            List<Date> dateList;
+            if (beforeStartTimeList.get(qq) != null) {
+                beforeStartTimeList.get(qq).clear();
+                dateList = beforeStartTimeList.get(qq);
+            } else {
+                dateList = new ArrayList<>();
+            }
             for (Course course : DailyEffCourseList) {
                 Date startTimeDate = sdf.parse(course.getCourseShowTime().split("-")[0]);
                 startTime.setTime(startTimeDate);
@@ -120,6 +125,7 @@ public class CourseData {
                 }
                 rsList.add((sHour - cHour) + Math.abs(sMinute - cMinute) + "");
             }
+            beforeStartTimeList.put(qq, dateList);
             int temp = -2;
             for (String s : rsList) {
                 temp = Math.max(Integer.parseInt(s), temp);
@@ -157,13 +163,20 @@ public class CourseData {
                 DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
                 Calendar now = Calendar.getInstance();
                 Calendar beforeTime = Calendar.getInstance();
-                List<Date> dateList = beforeStartTimeList.get(qq);
+                List<Date> dateList;
+                if (beforeStartTimeList.get(qq) != null) {
+                    beforeStartTimeList.get(qq).clear();
+                    dateList = beforeStartTimeList.get(qq);
+                } else {
+                    dateList = new ArrayList<>();
+                }
                 for (Course course : DailyEffCourseList) {
                     String startTime = course.getCourseShowTime().split("-")[0];
                     beforeTime.setTime(sdf.parse(startTime));
                     beforeTime.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), Calendar.MINUTE, beforeTime.get(Calendar.MINUTE) - 15, 0);
                     dateList.add(beforeTime.getTime());
                 }
+                beforeStartTimeList.put(qq, dateList);
             }
         } catch (Exception e) {
             e.printStackTrace();
