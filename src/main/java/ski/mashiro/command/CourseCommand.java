@@ -142,7 +142,7 @@ public class CourseCommand extends JCompositeCommand {
         return getUserRs;
     }
 
-    private boolean hasPermission(@NotNull CommandSender sender) {
+    public static boolean hasPermission(@NotNull CommandSender sender) {
         for (String s : Config.WHITELIST.getWhitelist()) {
             if (s.equals(Objects.requireNonNull(sender.getUser()).getId() + "")) {
                 return true;

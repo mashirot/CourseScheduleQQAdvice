@@ -92,8 +92,12 @@ public class CourseData {
             if (!dailyEffFile.exists()) {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }
-            DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(FileUtils.readFileToString(dailyEffFile, "utf-8"), List.class), Course.class);
+            String fileToString = FileUtils.readFileToString(dailyEffFile, "utf-8");
+            DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(fileToString, List.class), Course.class);
             DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
+            if ("[]".equals(fileToString)) {
+                return new Result(Code.NO_UPCOMING, null);
+            }
             if (DailyEffCourseList.size() == 0) {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }

@@ -28,6 +28,10 @@ public class UserCommand extends JCompositeCommand {
             sender.sendMessage("发送者只能为好友");
             return;
         }
+        if (!CourseCommand.hasPermission(sender)) {
+            sender.sendMessage("无权限");
+            return;
+        }
         if (!userCode.matches("\\d{3,30}") || apiToken.length() != 32) {
             sender.sendMessage("学号或密钥格式有误");
             return;
@@ -50,6 +54,10 @@ public class UserCommand extends JCompositeCommand {
             sender.sendMessage("发送者只能为好友");
             return;
         }
+        if (!CourseCommand.hasPermission(sender)) {
+            sender.sendMessage("无权限");
+            return;
+        }
         if (!userCode.matches("\\d{3,30}")) {
             sender.sendMessage("学号格式有误");
             return;
@@ -69,6 +77,10 @@ public class UserCommand extends JCompositeCommand {
     public void list(@NotNull CommandSender sender) {
         if (!(sender instanceof FriendCommandSender)) {
             sender.sendMessage("发送者只能为好友");
+            return;
+        }
+        if (!CourseCommand.hasPermission(sender)) {
+            sender.sendMessage("无权限");
             return;
         }
         Result result = UserData.getUser(Objects.requireNonNull(sender.getUser()).getId() + "");

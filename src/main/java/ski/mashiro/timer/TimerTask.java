@@ -6,15 +6,13 @@ import net.mamoe.mirai.contact.Friend;
 import ski.mashiro.config.Config;
 import ski.mashiro.data.CourseData;
 import ski.mashiro.data.UserData;
+import ski.mashiro.pojo.Code;
 import ski.mashiro.pojo.Course;
 import ski.mashiro.pojo.Result;
 import ski.mashiro.pojo.User;
 import ski.mashiro.util.Utils;
 
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -32,6 +30,7 @@ public class TimerTask {
             morning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH) + 1, 6, 0, 0);
         }
         ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
+
         pool.scheduleAtFixedRate(() -> {
             if (i == 0) {
                 i++;
@@ -39,6 +38,9 @@ public class TimerTask {
             }
             for (String qq : Config.WHITELIST.getWhitelist()) {
                 Result todayEffSchedule = CourseData.getTodayEffSchedule((User) UserData.getUser(qq).getData(), qq);
+                if (!todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
+                    continue;
+                }
                 try {
                     List<Course> courseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
                     StringBuilder sb = new StringBuilder();
@@ -66,15 +68,18 @@ public class TimerTask {
                     e.printStackTrace();
                 }
             }
-        }, now.getTime().getTime() - morning.getTime().getTime(), 1, TimeUnit.DAYS);
+            i++;
+        }, Math.abs(now.getTime().getTime() - morning.getTime().getTime()), 1, TimeUnit.DAYS);
 
         pool.scheduleAtFixedRate(() -> {
             for (String qq : Config.WHITELIST.getWhitelist()) {
-                if (CourseData.beforeStartTimeList.get(qq) == null || CourseData.beforeStartTimeList.get(qq).size() == 0) {
+                List<Date> dateList = CourseData.beforeStartTimeList.get(qq);
+                if (dateList == null || dateList.size() == 0) {
                     continue;
                 }
-                for (Date date : CourseData.beforeStartTimeList.get(qq)) {
-                    if (date.getTime() == System.currentTimeMillis()) {
+                Iterator<Date> it = dateList.listIterator();
+                while (it.hasNext()) {
+                    if (it.next().getTime() < System.currentTimeMillis()) {
                         Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                         for (Friend friend : bot.getFriends()) {
                             if ((friend.getId() + "").equals(qq)) {
@@ -86,10 +91,12 @@ public class TimerTask {
                                 friend.sendMessage(sb);
                             }
                         }
+                        it.remove();
                     }
                 }
             }
         }, 0, 1, TimeUnit.MINUTES);
 
     }
+
 }
