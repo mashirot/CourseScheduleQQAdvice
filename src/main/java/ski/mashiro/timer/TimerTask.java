@@ -1,8 +1,8 @@
 package ski.mashiro.timer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Friend;
+import ski.mashiro.CourseScheduleQQAdvice;
 import ski.mashiro.config.Config;
 import ski.mashiro.data.CourseData;
 import ski.mashiro.data.UserData;
@@ -15,23 +15,26 @@ import ski.mashiro.util.Utils;
 import java.util.*;
 import java.util.concurrent.*;
 
+
 /**
  * @author MashiroT
  */
 public class TimerTask {
     private static int i = 0;
+    private static int j = 0;
     public static void openTasks() {
         Calendar now = Calendar.getInstance();
-        now.setTime(new Date());
         Calendar morning = Calendar.getInstance();
         if (now.get(Calendar.HOUR_OF_DAY) < 6) {
             morning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), 6, 0, 0);
         } else {
             morning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH) + 1, 6, 0, 0);
         }
-        ScheduledExecutorService pool = Executors.newScheduledThreadPool(3);
+        ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
 
         pool.scheduleAtFixedRate(() -> {
+            Thread.currentThread().setDaemon(true);
+            CourseScheduleQQAdvice.INSTANCE.getLogger().info("现在的时间是：" + new Date() + " 早晨课程提醒线程启动了");
             if (i == 0) {
                 i++;
                 return;
@@ -64,37 +67,48 @@ public class TimerTask {
                             friend.sendMessage(sb.toString());
                         }
                     }
-                } catch (JsonProcessingException e) {
+                } catch (Exception e) {
+                    CourseScheduleQQAdvice.INSTANCE.getLogger().info("早晨课程提醒线程发生了异常");
                     e.printStackTrace();
                 }
             }
-            i++;
-        }, Math.abs(now.getTime().getTime() - morning.getTime().getTime()), 1, TimeUnit.DAYS);
+        }, Math.abs(morning.getTime().getTime() - now.getTime().getTime()), 1, TimeUnit.DAYS);
 
         pool.scheduleAtFixedRate(() -> {
-            for (String qq : Config.WHITELIST.getWhitelist()) {
-                List<Date> dateList = CourseData.beforeStartTimeList.get(qq);
-                if (dateList == null || dateList.size() == 0) {
-                    continue;
-                }
-                Iterator<Date> it = dateList.listIterator();
-                while (it.hasNext()) {
-                    if (it.next().getTime() < System.currentTimeMillis()) {
-                        Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
-                        for (Friend friend : bot.getFriends()) {
-                            if ((friend.getId() + "").equals(qq)) {
-                                Result upcoming = CourseData.getUpcoming((User) UserData.getUser(friend.getId() + "").getData(), friend.getId() + "");
-                                Course course = (Course) upcoming.getData();
-                                String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
-                                        "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
-                                        course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
-                                friend.sendMessage(sb);
+            Thread.currentThread().setDaemon(true);
+            if (j == 0) {
+                j++;
+                return;
+            }
+            try {
+                for (String qq : Config.WHITELIST.getWhitelist()) {
+                    List<Date> dateList = CourseData.beforeStartTimeList.get(qq);
+                    if (dateList == null || dateList.size() == 0) {
+                        continue;
+                    }
+                    Iterator<Date> it = dateList.listIterator();
+                    while (it.hasNext()) {
+                        if (it.next().getTime() < System.currentTimeMillis()) {
+                            Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
+                            for (Friend friend : bot.getFriends()) {
+                                if ((friend.getId() + "").equals(qq)) {
+                                    Result upcoming = CourseData.getUpcoming((User) UserData.getUser(friend.getId() + "").getData(), friend.getId() + "");
+                                    Course course = (Course) upcoming.getData();
+                                    String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
+                                            "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
+                                            course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
+                                    friend.sendMessage(sb);
+                                }
                             }
+                            it.remove();
                         }
-                        it.remove();
                     }
                 }
+            } catch (Exception e) {
+                CourseScheduleQQAdvice.INSTANCE.getLogger().info("课前提醒线程发生异常");
+                e.printStackTrace();
             }
+
         }, 0, 1, TimeUnit.MINUTES);
 
     }

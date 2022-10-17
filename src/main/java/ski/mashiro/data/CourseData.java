@@ -10,6 +10,7 @@ import ski.mashiro.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -101,35 +102,23 @@ public class CourseData {
             if (DailyEffCourseList.size() == 0) {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
-            Calendar currentTime = Calendar.getInstance();
+            getBeforeCourseTime(qq);
             List<String> rsList = new ArrayList<>();
-            currentTime.setTime(new Date());
-            int cHour = currentTime.get(Calendar.HOUR_OF_DAY);
-            int cMinute = currentTime.get(Calendar.MINUTE);
-            Calendar startTime = Calendar.getInstance();
-            List<Date> dateList;
-            if (beforeStartTimeList.get(qq) != null) {
-                beforeStartTimeList.get(qq).clear();
-                dateList = beforeStartTimeList.get(qq);
-            } else {
-                dateList = new ArrayList<>();
-            }
-            for (Course course : DailyEffCourseList) {
-                Date startTimeDate = sdf.parse(course.getCourseShowTime().split("-")[0]);
-                startTime.setTime(startTimeDate);
-                int sHour = startTime.get(Calendar.HOUR_OF_DAY);
-                int sMinute = startTime.get(Calendar.MINUTE);
-                Calendar date = Calendar.getInstance();
-                date.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH), currentTime.get(Calendar.DAY_OF_MONTH), startTime.get(Calendar.HOUR_OF_DAY), startTime.get(Calendar.MINUTE) - 15, 0);
-                dateList.add(date.getTime());
+            Calendar now = Calendar.getInstance();
+            int cHour = now.get(Calendar.HOUR_OF_DAY);
+            int cMinute = now.get(Calendar.MINUTE);
+            Calendar beforeTime = Calendar.getInstance();
+            for (Date beforeDate : beforeStartTimeList.get(qq)) {
+                beforeTime.setTime(beforeDate);
+                int sHour = beforeTime.get(Calendar.HOUR_OF_DAY);
+                int sMinute = beforeTime.get(Calendar.MINUTE);
                 if (sHour - cHour < 0) {
                     rsList.add("-1");
                     continue;
                 }
                 rsList.add((sHour - cHour) + Math.abs(sMinute - cMinute) + "");
             }
-            beforeStartTimeList.put(qq, dateList);
+
             int temp = -2;
             for (String s : rsList) {
                 temp = Math.max(Integer.parseInt(s), temp);
@@ -162,32 +151,39 @@ public class CourseData {
                 if (!todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
                     continue;
                 }
-                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
                 DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), List.class), Course.class);
                 DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
                 if (DailyEffCourseList.size() == 0) {
                     return;
                 }
-                Calendar now = Calendar.getInstance();
-                Calendar beforeTime = Calendar.getInstance();
-                List<Date> dateList;
-                if (beforeStartTimeList.get(qq) != null) {
-                    beforeStartTimeList.get(qq).clear();
-                    dateList = beforeStartTimeList.get(qq);
-                } else {
-                    dateList = new ArrayList<>();
-                }
-                for (Course course : DailyEffCourseList) {
-                    String startTime = course.getCourseShowTime().split("-")[0];
-                    beforeTime.setTime(sdf.parse(startTime));
-                    beforeTime.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH), Calendar.MINUTE, beforeTime.get(Calendar.MINUTE) - 15, 0);
-                    dateList.add(beforeTime.getTime());
-                }
-                beforeStartTimeList.put(qq, dateList);
+                getBeforeCourseTime(qq);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void getBeforeCourseTime(String qq) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        Calendar currentTime = Calendar.getInstance();
+        Calendar startTime = Calendar.getInstance();
+        List<Date> dateList;
+        if (beforeStartTimeList.get(qq) != null) {
+            beforeStartTimeList.get(qq).clear();
+            dateList = beforeStartTimeList.get(qq);
+        } else {
+            dateList = new ArrayList<>();
+        }
+        for (Course course : DailyEffCourseList) {
+            Date startTimeDate = sdf.parse(course.getCourseShowTime().split("-")[0]);
+            startTime.setTime(startTimeDate);
+            int sHour = startTime.get(Calendar.HOUR_OF_DAY);
+            int sMinute = startTime.get(Calendar.MINUTE);
+            Calendar date = Calendar.getInstance();
+            date.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH), currentTime.get(Calendar.DAY_OF_MONTH), sHour, sMinute - 15, 0);
+            dateList.add(date.getTime());
+        }
+        beforeStartTimeList.put(qq, dateList);
     }
 
 }
