@@ -61,6 +61,7 @@ public class CourseCommand extends JCompositeCommand {
     }
 
     @SubCommand({"today", "t"})
+    @Description("获取今日课程")
     public void today(@NotNull CommandSender sender) {
         Result result = verifyIllegal(sender);
         if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {
@@ -100,6 +101,7 @@ public class CourseCommand extends JCompositeCommand {
     }
 
     @SubCommand({"next", "upcoming", "n"})
+    @Description("获取下节课的信息")
     public void upcoming(@NotNull CommandSender sender) {
         Result result = verifyIllegal(sender);
         if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {
@@ -120,10 +122,9 @@ public class CourseCommand extends JCompositeCommand {
         }
         if (upcoming.getCode().equals(Code.GET_UPCOMING_SUCCESS)) {
             Course course = (Course) upcoming.getData();
-            StringBuilder sb = new StringBuilder(Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n");
-            sb.append("上课时间\t\t").append("上课地点\t\t").append("课程名\n");
-            sb.append(course.getCourseShowTime()).append("\t").append(course.getCourseLocation()).append("\t\t").append(course.getCourseName());
-            sender.sendMessage(sb.toString());
+            String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" + "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
+                    course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
+            sender.sendMessage(sb);
         }
     }
 

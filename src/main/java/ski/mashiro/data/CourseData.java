@@ -103,7 +103,7 @@ public class CourseData {
                 return new Result(Code.GET_UPCOMING_FAILED, null);
             }
             getBeforeCourseTime(qq);
-            List<String> rsList = new ArrayList<>();
+            List<Integer> rsList = new ArrayList<>();
             Calendar now = Calendar.getInstance();
             int cHour = now.get(Calendar.HOUR_OF_DAY);
             int cMinute = now.get(Calendar.MINUTE);
@@ -113,20 +113,18 @@ public class CourseData {
                 int sHour = beforeTime.get(Calendar.HOUR_OF_DAY);
                 int sMinute = beforeTime.get(Calendar.MINUTE);
                 if (sHour - cHour < 0) {
-                    rsList.add("-1");
+                    rsList.add(-1);
                     continue;
                 }
-                rsList.add((sHour - cHour) + Math.abs(sMinute - cMinute) + "");
+                String minuteMinus = String.valueOf(Math.abs(sMinute - cMinute));
+                rsList.add(Integer.parseInt((sHour - cHour) + (minuteMinus.length() == 2 ? "" : minuteMinus + "0")));
             }
 
-            int temp = -2;
-            for (String s : rsList) {
-                temp = Math.max(Integer.parseInt(s), temp);
-            }
+            int temp = Collections.min(rsList);
             if (temp < 0) {
                 return new Result(Code.NO_UPCOMING, null);
             }
-            return new Result(Code.GET_UPCOMING_SUCCESS, DailyEffCourseList.get(rsList.indexOf(temp + "")));
+            return new Result(Code.GET_UPCOMING_SUCCESS, DailyEffCourseList.get(rsList.indexOf(temp)));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -180,7 +178,7 @@ public class CourseData {
             int sHour = startTime.get(Calendar.HOUR_OF_DAY);
             int sMinute = startTime.get(Calendar.MINUTE);
             Calendar date = Calendar.getInstance();
-            date.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH), currentTime.get(Calendar.DAY_OF_MONTH), sHour, sMinute - 15, 0);
+            date.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH), currentTime.get(Calendar.DAY_OF_MONTH), sHour, sMinute - 20, 0);
             dateList.add(date.getTime());
         }
         beforeStartTimeList.put(qq, dateList);
