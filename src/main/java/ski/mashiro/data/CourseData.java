@@ -74,7 +74,7 @@ public class CourseData {
                 FileUtils.write(dailyEffFile, OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), "utf-8");
 
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
-                DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
+                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -95,7 +95,7 @@ public class CourseData {
             }
             String fileToString = FileUtils.readFileToString(dailyEffFile, "utf-8");
             DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(fileToString, List.class), Course.class);
-            DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
+            DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
             if ("[]".equals(fileToString)) {
                 return new Result(Code.NO_UPCOMING, null);
             }
@@ -150,11 +150,15 @@ public class CourseData {
                     continue;
                 }
                 DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), List.class), Course.class);
-                DailyEffCourseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
+                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
                 if (DailyEffCourseList.size() == 0) {
                     return;
                 }
                 getBeforeCourseTime(qq);
+                File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+                if (dailyCourseCache.createNewFile()) {
+                    FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

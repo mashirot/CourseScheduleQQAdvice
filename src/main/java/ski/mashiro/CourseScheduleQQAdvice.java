@@ -16,7 +16,7 @@ import ski.mashiro.config.Config;
 import ski.mashiro.data.CourseData;
 import ski.mashiro.listener.MessageListener;
 import ski.mashiro.net.Update;
-import ski.mashiro.timer.TimerTask;
+import ski.mashiro.timer.ThreadController;
 
 /**
  * @author MashiroT
@@ -43,7 +43,7 @@ public final class CourseScheduleQQAdvice extends JavaPlugin {
         CommandManager.INSTANCE.registerCommand(new AdminCommand(), true);
         PermissionService.permit0(AbstractPermitteeId.AnyContact.INSTANCE, INSTANCE.getParentPermission());
         CourseData.initData();
-        TimerTask.openTasks();
+        ThreadController.openTasks();
         getLogger().info("CourseScheduleQQAdvice 加载成功!");
     }
 
