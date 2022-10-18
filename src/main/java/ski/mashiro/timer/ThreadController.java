@@ -11,7 +11,6 @@ import java.util.concurrent.*;
  * @author MashiroT
  */
 public class ThreadController {
-    private static int i = 0;
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void openTasks() {
@@ -25,17 +24,14 @@ public class ThreadController {
         }
         ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
         pool.scheduleAtFixedRate(() -> {
-            CourseScheduleQQAdvice.INSTANCE.getLogger().info("现在的时间是：" + new Date() + " 进入MorningThread调用线程 " + i + "次");
+            CourseScheduleQQAdvice.INSTANCE.getLogger().info("现在的时间是：" + new Date() + " 进入MorningThread调用线程");
             Thread thread = new Thread(new MorningThread());
             thread.start();
-        }, Math.abs(morning.getTime().getTime() - now.getTime().getTime()), 1, TimeUnit.DAYS);
+        }, Math.abs(morning.getTime().getTime() - now.getTime().getTime()), 24 * 60 * 60 * 1000, TimeUnit.MILLISECONDS);
+
         pool.scheduleAtFixedRate(() -> {
-            if (i == 0) {
-                i++;
-                return;
-            }
             Thread thread = new Thread(new RemindThread());
             thread.start();
-        }, 0, 1, TimeUnit.MINUTES);
+        }, 1, 1, TimeUnit.MINUTES);
     }
 }

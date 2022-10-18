@@ -119,9 +119,15 @@ public class CourseData {
                 String minuteMinus = String.valueOf(Math.abs(sMinute - cMinute));
                 rsList.add(Integer.parseInt((sHour - cHour) + (minuteMinus.length() == 2 ? "" : minuteMinus + "0")));
             }
-
-            int temp = Collections.min(rsList);
-            if (temp < 0) {
+            int temp = 0;
+            for (Integer rs : rsList) {
+                if (rs < 0) {
+                    continue;
+                }
+                temp = temp == 0 ? rs : temp;
+                temp = rs < temp ? rs : temp;
+            }
+            if (temp == 0) {
                 return new Result(Code.NO_UPCOMING, null);
             }
             return new Result(Code.GET_UPCOMING_SUCCESS, DailyEffCourseList.get(rsList.indexOf(temp)));
@@ -156,6 +162,12 @@ public class CourseData {
                 }
                 getBeforeCourseTime(qq);
                 File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+                if (dailyCourseCache.exists()) {
+
+                    if (dailyCourseCache.delete()) {
+
+                    }
+                }
                 if (dailyCourseCache.createNewFile()) {
                     FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
                 }
