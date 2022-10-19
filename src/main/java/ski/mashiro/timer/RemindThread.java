@@ -6,11 +6,7 @@ import org.apache.commons.io.FileUtils;
 import ski.mashiro.CourseScheduleQQAdvice;
 import ski.mashiro.config.Config;
 import ski.mashiro.data.CourseData;
-import ski.mashiro.data.UserData;
-import ski.mashiro.pojo.Code;
 import ski.mashiro.pojo.Course;
-import ski.mashiro.pojo.Result;
-import ski.mashiro.pojo.User;
 import ski.mashiro.util.Utils;
 
 import java.io.File;
@@ -33,16 +29,13 @@ public class RemindThread implements Runnable{
                     continue;
                 }
                 Iterator<Date> it = dateList.listIterator();
+                int index = 0;
                 while (it.hasNext()) {
                     if (it.next().getTime() < System.currentTimeMillis()) {
                         Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                         for (Friend friend : bot.getFriends()) {
                             if ((friend.getId() + "").equals(qq)) {
-                                Result upcoming = CourseData.getUpcoming((User) UserData.getUser(friend.getId() + "").getData(), friend.getId() + "");
-                                if (upcoming.getCode().equals(Code.NO_UPCOMING)) {
-                                    continue;
-                                }
-                                Course course = (Course) upcoming.getData();
+                                Course course = CourseData.DailyEffCourseList.get(index);
                                 String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
                                         "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
                                         course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
@@ -51,6 +44,7 @@ public class RemindThread implements Runnable{
                         }
                         it.remove();
                     }
+                    index++;
                 }
                 FileUtils.write(dailyCourseCache, ThreadController.OBJECT_MAPPER.writeValueAsString(dateList), "utf-8");
             }

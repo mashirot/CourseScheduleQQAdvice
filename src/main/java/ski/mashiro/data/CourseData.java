@@ -72,10 +72,10 @@ public class CourseData {
             try {
                 File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
                 FileUtils.write(dailyEffFile, OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), "utf-8");
-
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
                 DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
-
+                getBeforeCourseTime(qq);
+                refreshDailyEffCache(qq);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -161,19 +161,25 @@ public class CourseData {
                     return;
                 }
                 getBeforeCourseTime(qq);
-                File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
-                if (dailyCourseCache.exists()) {
-
-                    if (dailyCourseCache.delete()) {
-
-                    }
-                }
-                if (dailyCourseCache.createNewFile()) {
-                    FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
-                }
+                refreshDailyEffCache(qq);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void refreshDailyEffCache(String qq) throws IOException {
+        File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+        if (!dailyCourseCache.exists()) {
+            if (dailyCourseCache.createNewFile()) {
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
+                return;
+            }
+        }
+        if (dailyCourseCache.delete()) {
+            if (dailyCourseCache.createNewFile()) {
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
+            }
         }
     }
 
