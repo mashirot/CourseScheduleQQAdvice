@@ -22,7 +22,6 @@ import java.util.List;
 public class MorningThread implements Runnable {
     @Override
     public void run() {
-        CourseScheduleQQAdvice.INSTANCE.getLogger().info("现在的时间是：" + new Date() + " 早晨课程提醒线程启动了");
         for (String qq : Config.WHITELIST.getWhitelist()) {
             Result todayEffSchedule = CourseData.getTodayEffSchedule((User) UserData.getUser(qq).getData(), qq);
             if (!todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {

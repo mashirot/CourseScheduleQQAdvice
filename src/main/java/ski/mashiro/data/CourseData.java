@@ -172,13 +172,13 @@ public class CourseData {
         File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
         if (!dailyCourseCache.exists()) {
             if (dailyCourseCache.createNewFile()) {
-                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(beforeStartTimeList.get(qq), 0)), "utf-8");
                 return;
             }
         }
         if (dailyCourseCache.delete()) {
             if (dailyCourseCache.createNewFile()) {
-                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(beforeStartTimeList.get(qq)), "utf-8");
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(beforeStartTimeList.get(qq), 0)), "utf-8");
             }
         }
     }

@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import ski.mashiro.CourseScheduleQQAdvice;
 import ski.mashiro.config.Config;
 import ski.mashiro.data.CourseData;
+import ski.mashiro.pojo.Cache;
 import ski.mashiro.pojo.Course;
 import ski.mashiro.util.Utils;
 
@@ -20,22 +21,22 @@ import java.util.List;
 public class RemindThread implements Runnable{
 
     @Override
-    public void run() {
+    public synchronized void run() {
         try {
             for (String qq : Config.WHITELIST.getWhitelist()) {
                 File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
-                List<Date> dateList = Utils.transToList(ThreadController.OBJECT_MAPPER.readValue(FileUtils.readFileToString(dailyCourseCache, "utf-8"), List.class), Date.class);
+                Cache cache = ThreadController.OBJECT_MAPPER.readValue(FileUtils.readFileToString(dailyCourseCache, "utf-8"), Cache.class);
+                List<Date> dateList = Utils.transToList(cache.getDateList(), Date.class);
                 if (dateList == null || dateList.size() == 0) {
                     continue;
                 }
                 Iterator<Date> it = dateList.listIterator();
-                int index = 0;
                 while (it.hasNext()) {
                     if (it.next().getTime() < System.currentTimeMillis()) {
                         Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                         for (Friend friend : bot.getFriends()) {
                             if ((friend.getId() + "").equals(qq)) {
-                                Course course = CourseData.DailyEffCourseList.get(index);
+                                Course course = CourseData.DailyEffCourseList.get(cache.getIndex());
                                 String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
                                         "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
                                         course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
@@ -43,10 +44,11 @@ public class RemindThread implements Runnable{
                             }
                         }
                         it.remove();
+                        cache.setIndex(cache.getIndex() + 1);
                     }
-                    index++;
                 }
-                FileUtils.write(dailyCourseCache, ThreadController.OBJECT_MAPPER.writeValueAsString(dateList), "utf-8");
+                cache.setDateList(dateList);
+                FileUtils.write(dailyCourseCache, ThreadController.OBJECT_MAPPER.writeValueAsString(cache), "utf-8");
             }
         } catch (Exception e) {
             CourseScheduleQQAdvice.INSTANCE.getLogger().info("课前提醒线程发生异常");
