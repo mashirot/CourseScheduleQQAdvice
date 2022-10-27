@@ -12,8 +12,6 @@ import ski.mashiro.pojo.Result;
 import ski.mashiro.pojo.User;
 import ski.mashiro.util.Utils;
 
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,25 +27,11 @@ public class MorningThread implements Runnable {
             }
             try {
                 List<Course> courseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
-                StringBuilder sb = new StringBuilder();
-                sb.append("早上好\n");
-                sb.append(Utils.transitionDateToStr(new Date())).append("   ").append(Utils.getWeek()).append("\n");
-                if (courseList.size() > 0) {
-                    sb.append("上课时间\t\t").append("上课地点\t\t").append("课程名\n");
-                    courseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
-                    for (Course course : courseList) {
-                        sb.append(course.getCourseShowTime()).append("\t").append(course.getCourseLocation()).append("\t\t").append(course.getCourseName());
-                        if (!course.equals(courseList.get(courseList.size() - 1))) {
-                            sb.append("\n");
-                        }
-                    }
-                } else {
-                    sb.append("今日无课,好好休息");
-                }
+                String schedule = Utils.printSchedule(courseList);
                 Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                 for (Friend friend : bot.getFriends()) {
                     if ((friend.getId() + "").equals(qq)) {
-                        friend.sendMessage(sb.toString());
+                        friend.sendMessage("早上好\n" +schedule);
                     }
                 }
             } catch (Exception e) {

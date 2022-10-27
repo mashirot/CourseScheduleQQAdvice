@@ -11,7 +11,6 @@ import ski.mashiro.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -23,6 +22,7 @@ public class CourseData {
 
     public static List<Course> DailyEffCourseList = new ArrayList<>();
     public static Map<String,List<Date>> beforeStartTimeList = new HashMap<>();
+    public static Map<String,List<Date>> courseEndTime = new HashMap<>();
 
     public static Result getSchedule(User user, String qq) {
         try {
@@ -38,7 +38,7 @@ public class CourseData {
                 return new Result(Code.LIST_ALL_FAILED, null);
             }
             FileUtils.write(courseFile, OBJECT_MAPPER.writeValueAsString(result.getData()), "utf-8");
-            return new Result(Code.COURSE_FILE_CREATE_SUCCESS, null);
+            return new Result(Code.COURSE_FILE_CREATE_SUCCESS, result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,7 +59,7 @@ public class CourseData {
                 return new Result(Code.LIST_ALL_FAILED, null);
             }
             FileUtils.write(courseFile, OBJECT_MAPPER.writeValueAsString(result.getData()), "utf-8");
-            return new Result(Code.COURSE_FILE_CREATE_SUCCESS, null);
+            return new Result(Code.COURSE_FILE_CREATE_SUCCESS, result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,7 +73,7 @@ public class CourseData {
                 File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
                 FileUtils.write(dailyEffFile, OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), "utf-8");
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
-                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
+                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseDate().split(" ")[1].split("-")[0].split(":")[0])));
                 getBeforeCourseTime(qq);
                 refreshDailyEffCache(qq);
             } catch (Exception e) {
@@ -91,11 +91,11 @@ public class CourseData {
         try {
             File dailyEffFile = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, user.getUserCode() + "dailyEff" + ".json");
             if (!dailyEffFile.exists()) {
-                return new Result(Code.GET_UPCOMING_FAILED, null);
+                getTodayEffSchedule(user, qq);
             }
             String fileToString = FileUtils.readFileToString(dailyEffFile, "utf-8");
             DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(fileToString, List.class), Course.class);
-            DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
+            DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseDate().split(" ")[1].split("-")[0].split(":")[0])));
             if ("[]".equals(fileToString)) {
                 return new Result(Code.NO_UPCOMING, null);
             }
@@ -156,11 +156,12 @@ public class CourseData {
                     continue;
                 }
                 DailyEffCourseList = Utils.transToList(OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(todayEffSchedule.getData()), List.class), Course.class);
-                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseShowTime().split("-")[0].split(":")[0])));
+                DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseDate().split(" ")[1].split("-")[0].split(":")[0])));
                 if (DailyEffCourseList.size() == 0) {
                     return;
                 }
                 getBeforeCourseTime(qq);
+                getEndCourseTime(qq);
                 refreshDailyEffCache(qq);
             }
         } catch (Exception e) {
@@ -170,40 +171,55 @@ public class CourseData {
 
     private static void refreshDailyEffCache(String qq) throws IOException {
         File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+        List<Date[]> dates = new ArrayList<>(courseEndTime.get(qq).size());
+        int index = 0;
+        for (Date date : courseEndTime.get(qq)) {
+            dates.add(new Date[]{beforeStartTimeList.get(qq).get(index), date});
+            index++;
+        }
         if (!dailyCourseCache.exists()) {
             if (dailyCourseCache.createNewFile()) {
-                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(beforeStartTimeList.get(qq), 0)), "utf-8");
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(dates, 0)), "utf-8");
                 return;
             }
         }
         if (dailyCourseCache.delete()) {
             if (dailyCourseCache.createNewFile()) {
-                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(beforeStartTimeList.get(qq), 0)), "utf-8");
+                FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(dates, 0)), "utf-8");
             }
         }
     }
 
     private static void getBeforeCourseTime(String qq) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        Calendar currentTime = Calendar.getInstance();
-        Calendar startTime = Calendar.getInstance();
         List<Date> dateList;
         if (beforeStartTimeList.get(qq) != null) {
             beforeStartTimeList.get(qq).clear();
             dateList = beforeStartTimeList.get(qq);
         } else {
-            dateList = new ArrayList<>();
+            dateList = new ArrayList<>(DailyEffCourseList.size());
         }
         for (Course course : DailyEffCourseList) {
-            Date startTimeDate = sdf.parse(course.getCourseShowTime().split("-")[0]);
-            startTime.setTime(startTimeDate);
-            int sHour = startTime.get(Calendar.HOUR_OF_DAY);
-            int sMinute = startTime.get(Calendar.MINUTE);
+            Date beforeDate = Utils.transferStrToDate(course.getCourseDate().split(" ")[1].split("-")[0]);
             Calendar date = Calendar.getInstance();
-            date.set(currentTime.get(Calendar.YEAR), currentTime.get(Calendar.MONTH), currentTime.get(Calendar.DAY_OF_MONTH), sHour, sMinute - 20, 0);
+            date.setTime(beforeDate);
+            date.set(Calendar.MINUTE, -20);
             dateList.add(date.getTime());
         }
         beforeStartTimeList.put(qq, dateList);
+    }
+
+    private static void getEndCourseTime(String qq) throws ParseException {
+        List<Date> dateList;
+        if (courseEndTime.get(qq) != null) {
+            courseEndTime.get(qq).clear();
+            dateList = courseEndTime.get(qq);
+        } else {
+            dateList = new ArrayList<>(DailyEffCourseList.size());
+        }
+        for (Course course : DailyEffCourseList) {
+            dateList.add(Utils.transferStrToDate(course.getCourseDate().split(" ")[1].split("-")[1]));
+        }
+        courseEndTime.put(qq, dateList);
     }
 
 }

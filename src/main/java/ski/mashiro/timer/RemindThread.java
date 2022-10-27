@@ -25,21 +25,30 @@ public class RemindThread implements Runnable{
         try {
             for (String qq : Config.WHITELIST.getWhitelist()) {
                 File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+                if (!dailyCourseCache.exists()) {
+                    continue;
+                }
                 Cache cache = ThreadController.OBJECT_MAPPER.readValue(FileUtils.readFileToString(dailyCourseCache, "utf-8"), Cache.class);
-                List<Date> dateList = Utils.transToList(cache.getDateList(), Date.class);
+                List<Date[]> dateList = Utils.transToList(cache.getDateList(), Date[].class);
                 if (dateList == null || dateList.size() == 0) {
                     continue;
                 }
-                Iterator<Date> it = dateList.listIterator();
+                Iterator<Date[]> it = dateList.listIterator();
                 while (it.hasNext()) {
-                    if (it.next().getTime() < System.currentTimeMillis()) {
+                    Date[] next = it.next();
+                    if (next[0].getTime() < System.currentTimeMillis()) {
+                        if (next[1].getTime() < System.currentTimeMillis()) {
+                            it.remove();
+                            cache.setIndex(cache.getIndex() + 1);
+                            continue;
+                        }
                         Bot bot = Bot.getInstance(Config.CONFIGURATION.getBot());
                         for (Friend friend : bot.getFriends()) {
                             if ((friend.getId() + "").equals(qq)) {
                                 Course course = CourseData.DailyEffCourseList.get(cache.getIndex());
-                                String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
+                                String sb = Utils.transferDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" +
                                         "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
-                                        course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
+                                        course.getCourseDate().split(" ")[1] + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
                                 friend.sendMessage(sb);
                             }
                         }

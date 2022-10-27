@@ -7,22 +7,22 @@ import java.util.List;
  * @author MashiroT
  */
 public class Cache {
-    private List<Date> dateList;
+    private List<Date[]> dateList;
     private Integer index;
 
     public Cache() {
     }
 
-    public Cache(List<Date> dateList, Integer index) {
+    public Cache(List<Date[]> dateList, Integer index) {
         this.dateList = dateList;
         this.index = index;
     }
 
-    public List<Date> getDateList() {
+    public List<Date[]> getDateList() {
         return dateList;
     }
 
-    public void setDateList(List<Date> dateList) {
+    public void setDateList(List<Date[]> dateList) {
         this.dateList = dateList;
     }
 

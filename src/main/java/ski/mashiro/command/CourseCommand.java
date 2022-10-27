@@ -15,9 +15,7 @@ import ski.mashiro.pojo.Result;
 import ski.mashiro.pojo.User;
 import ski.mashiro.util.Utils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author MashiroT
@@ -26,11 +24,12 @@ public class CourseCommand extends JCompositeCommand {
 
     public CourseCommand() {
         super(CourseScheduleQQAdvice.INSTANCE, "course", "c");
+        super.setPrefixOptional(true);
     }
 
-    @SubCommand("pull")
-    @Description("更新课程信息")
-    public void pull(@NotNull CommandSender sender, String type) {
+    @SubCommand("all")
+    @Description("所有课程")
+    public void all(@NotNull CommandSender sender) {
         Result result = verifyIllegal(sender);
         if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {
             return;
@@ -39,25 +38,43 @@ public class CourseCommand extends JCompositeCommand {
             sender.sendMessage("无权限");
             return;
         }
-        if ("eff".equals(type)) {
-            Result getCoursesRs = CourseData.getSchedule((User) result.getData(), Objects.requireNonNull(sender.getUser()).getId() + "");
-            if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_SUCCESS)) {
-                sender.sendMessage("获取成功");
-            } else if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_FAILED)) {
-                sender.sendMessage("请求失败，请检查服务器地址");
+        Result getCoursesRs = CourseData.getSchedule((User) result.getData(), Objects.requireNonNull(sender.getUser()).getId() + "");
+        if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_SUCCESS)) {
+            try {
+                List<Course> courseList = Utils.transToList(((Result) getCoursesRs.getData()).getData(), Course.class);
+                String detailSchedule = printDetailSchedule(courseList);
+                sender.sendMessage(detailSchedule);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
+        } else if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_FAILED)) {
+            sender.sendMessage("请求失败，请检查服务器地址");
+        }
+    }
+
+    @SubCommand("eff")
+    @Description("所有有效课程")
+    public void allEff(@NotNull CommandSender sender) {
+        Result result = verifyIllegal(sender);
+        if (!result.getCode().equals(Code.GET_USER_SUCCESS)) {
             return;
         }
-        if ("all".equals(type)) {
-            Result getCoursesRs = CourseData.getEffSchedule((User) result.getData(), Objects.requireNonNull(sender.getUser()).getId() + "");
-            if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_SUCCESS)) {
-                sender.sendMessage("获取成功");
-            } else if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_FAILED)) {
-                sender.sendMessage("请求失败，请检查服务器地址");
-            }
+        if (!hasPermission(sender)) {
+            sender.sendMessage("无权限");
             return;
         }
-        sender.sendMessage("类型错误, eff\\all");
+        Result getCoursesRs = CourseData.getEffSchedule((User) result.getData(), Objects.requireNonNull(sender.getUser()).getId() + "");
+        if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_SUCCESS)) {
+            try {
+                List<Course> courseList = Utils.transToList(((Result) getCoursesRs.getData()).getData(), Course.class);
+                String detailSchedule = printDetailSchedule(courseList);
+                sender.sendMessage(detailSchedule);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (getCoursesRs.getCode().equals(Code.COURSE_FILE_CREATE_FAILED)) {
+            sender.sendMessage("请求失败，请检查服务器地址");
+        }
     }
 
     @SubCommand({"today", "t"})
@@ -75,20 +92,8 @@ public class CourseCommand extends JCompositeCommand {
         if (todayEffSchedule.getCode().equals(Code.LIST_DATE_SUCCESS)) {
             try {
                 List<Course> courseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
-                StringBuilder sb = new StringBuilder(Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n");
-                if (courseList.size() > 0) {
-                    sb.append("上课时间\t\t").append("上课地点\t\t").append("课程名\n");
-                    courseList.sort((o1, o2) -> Integer.parseInt(o1.getCourseShowTime().split("-")[0].split(":")[0]) - Integer.parseInt(o2.getCourseShowTime().split("-")[0].split(":")[0]));
-                    for (Course course : courseList) {
-                        sb.append(course.getCourseShowTime()).append("\t").append(course.getCourseLocation()).append("\t\t").append(course.getCourseName());
-                        if (!course.equals(courseList.get(courseList.size() - 1))) {
-                            sb.append("\n");
-                        }
-                    }
-                } else {
-                    sb.append("今日无课，好好休息");
-                }
-                sender.sendMessage(sb.toString());
+                String schedule = Utils.printSchedule(courseList);
+                sender.sendMessage(schedule);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -122,10 +127,32 @@ public class CourseCommand extends JCompositeCommand {
         }
         if (upcoming.getCode().equals(Code.GET_UPCOMING_SUCCESS)) {
             Course course = (Course) upcoming.getData();
-            String sb = Utils.transitionDateToStr(new Date()) + "   " + Utils.getWeek() + "\n" + "上课时间\t\t" + "上课地点\t\t" + "课程名\n" +
-                    course.getCourseShowTime() + "\t" + course.getCourseLocation() + "\t\t" + course.getCourseName();
-            sender.sendMessage(sb);
+            String schedule = Utils.printSchedule(Collections.singletonList(course));
+            sender.sendMessage(schedule);
         }
+    }
+
+    private String printDetailSchedule(List<Course> courseList) {
+        StringBuilder sb = new StringBuilder("日期\t\t上课时间\t\t\t上课地点\t\t课程名\n");
+        if (courseList.size() > 0) {
+            String date = null;
+            for (Course course : courseList) {
+                if (date == null) {
+                    date = course.getCourseDate().split(" ")[0];
+                }
+                if (!date.equals(course.getCourseDate().split(" ")[0])) {
+                    date = course.getCourseDate().split(" ")[0];
+                    sb.append("---------------").append("\n");
+                }
+                sb.append(course.getCourseDate().split(" ")[0]).append("\t").append(course.getCourseDate().split(" ")[1]).append("\t\t").append(course.getCourseLocation()).append("\t\t").append(course.getCourseName());
+                if (!course.equals(courseList.get(courseList.size() - 1))) {
+                    sb.append("\n");
+                }
+            }
+        } else {
+            sb.append("暂无课程信息");
+        }
+        return sb.toString();
     }
 
     private Result verifyIllegal(@NotNull CommandSender sender) {

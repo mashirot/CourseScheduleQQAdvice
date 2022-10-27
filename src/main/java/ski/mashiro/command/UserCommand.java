@@ -19,6 +19,7 @@ public class UserCommand extends JCompositeCommand {
 
     public UserCommand() {
         super(CourseScheduleQQAdvice.INSTANCE, "user", "u");
+        super.setPrefixOptional(true);
     }
 
     @SubCommand("bind")

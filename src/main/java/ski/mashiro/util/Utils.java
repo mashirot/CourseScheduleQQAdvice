@@ -3,8 +3,9 @@ package ski.mashiro.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import org.apache.commons.codec.digest.DigestUtils;
+import ski.mashiro.pojo.Course;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -15,20 +16,21 @@ public class Utils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static String generateSalt(int length) {
-        StringBuilder sb = new StringBuilder(length);
-        Random random = new Random();
-        char c;
-        for (int i = 0; i < length; i++) {
-            c = (char) (random.nextInt(94) + 33);
-            sb.append(c);
+    public static String printSchedule(List<Course> courseList) {
+        StringBuilder sb = new StringBuilder(Utils.transferDateToStr(new Date()) + "   " + Utils.getWeek() + "\n");
+        if (courseList.size() > 0) {
+            sb.append("上课时间\t\t").append("上课地点\t\t").append("课程名\n");
+            courseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseDate().split(" ")[1].split("-")[0].split(":")[0])));
+            for (Course course : courseList) {
+                sb.append(course.getCourseDate().split(" ")[1]).append("\t").append(course.getCourseLocation()).append("\t\t").append(course.getCourseName());
+                if (!course.equals(courseList.get(courseList.size() - 1))) {
+                    sb.append("\n");
+                }
+            }
+        } else {
+            sb.append("今日无课，好好休息");
         }
         return sb.toString();
-    }
-
-    public static String encryptPassword(String password, String salt) {
-        String addSaltPasswd = password.substring(0, password.length() / 2) + salt + password.substring(password.length() / 2);
-        return DigestUtils.sha3_256Hex(addSaltPasswd).substring(7,57);
     }
 
     public static <T> List<T> transToList(Object data, Class<T> clazz) throws JsonProcessingException {
@@ -37,7 +39,16 @@ public class Utils {
         return OBJECT_MAPPER.readValue(asString, collectionType);
     }
 
-    public static String transitionDateToStr(Date date) {
+    public static Date transferStrToDate(String strDate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        Calendar now = Calendar.getInstance();
+        Calendar rsDate = Calendar.getInstance();
+        rsDate.setTime(sdf.parse(strDate));
+        rsDate.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+        return rsDate.getTime();
+    }
+
+    public static String transferDateToStr(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date);
     }

@@ -4,11 +4,10 @@ package ski.mashiro.pojo;
  * @author MashiroT
  */
 public class Code {
-    public static final Integer LIST_DATE_SUCCESS = 20051;
-    public static final Integer LIST_DATE_FAILED = 20050;
-
-    public static final Integer LIST_ALL_SUCCESS = 20061;
-    public static final Integer LIST_ALL_FAILED = 20060;
+    public static final Integer LIST_DATE_SUCCESS = 20061;
+    public static final Integer LIST_DATE_FAILED = 20060;
+    public static final Integer LIST_ALL_SUCCESS = 20071;
+    public static final Integer LIST_ALL_FAILED = 20070;
 
     public static final Integer DELETE_USER_SUCCESS = 10021;
     public static final Integer DELETE_USER_FAILED = 10020;

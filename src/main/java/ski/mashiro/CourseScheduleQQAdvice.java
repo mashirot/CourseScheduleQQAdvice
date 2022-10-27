@@ -26,7 +26,7 @@ public final class CourseScheduleQQAdvice extends JavaPlugin {
     public static final CourseScheduleQQAdvice INSTANCE = new CourseScheduleQQAdvice();
 
     private CourseScheduleQQAdvice() {
-        super(new JvmPluginDescriptionBuilder("ski.mashiro.course-schedule-qq-advice", "1.0.0")
+        super(new JvmPluginDescriptionBuilder("ski.mashiro.course-schedule-qq-advice", "1.1.0")
                 .name("CourseScheduleQQAdvice")
                 .author("MashiroT")
                 .build());
