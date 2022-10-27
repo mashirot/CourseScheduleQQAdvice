@@ -16,4 +16,5 @@ CourseSchedule的配套QQ通知插件，基于Mirai2.0
 
 ## 注意事项
 需要修改Config中的Bot和Owner为机器人QQ和自己的QQ
+
 只支持一个QQ绑定一个User
