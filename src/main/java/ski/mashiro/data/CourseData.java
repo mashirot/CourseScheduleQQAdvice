@@ -171,6 +171,20 @@ public class CourseData {
 
     private static void refreshDailyEffCache(String qq) throws IOException {
         File dailyCourseCache = new File(CourseScheduleQQAdvice.INSTANCE.getDataFolder() + "/Courses/" + qq, "dailyCourseCache" + ".json");
+        if (courseEndTime.get(qq) == null) {
+            if (!dailyCourseCache.exists()) {
+                if (dailyCourseCache.createNewFile()) {
+                    FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(new ArrayList<>(0), 0)), "utf-8");
+                    return;
+                }
+            }
+            if (dailyCourseCache.delete()) {
+                if (dailyCourseCache.createNewFile()) {
+                    FileUtils.write(dailyCourseCache, OBJECT_MAPPER.writeValueAsString(new Cache(new ArrayList<>(0), 0)), "utf-8");
+                }
+            }
+            return;
+        }
         List<Date[]> dates = new ArrayList<>(courseEndTime.get(qq).size());
         int index = 0;
         for (Date date : courseEndTime.get(qq)) {

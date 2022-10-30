@@ -4,7 +4,7 @@ package ski.mashiro.pojo;
  * @author MashiroT
  */
 public class Configuration {
-    private String version = "1.0.0";
+    private String version = "1.1.0";
     private String apiUrl = "https://schedule.mashiro.ski/api";
     private Long bot = 12345L;
     private Long owner = 12345L;
