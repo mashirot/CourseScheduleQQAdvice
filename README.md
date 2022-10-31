@@ -1,6 +1,7 @@
 # CourseScheduleQQAdvice
 CourseSchedule的配套QQ通知插件，基于Mirai2.0
 
+需要配合 Mirai 插件 [chat-command](https://github.com/project-mirai/chat-command) 使用
 需要搭配 [ClassSchedule-Rebuild](https://github.com/mashirot/ClassSchedule-Rebuild) 使用
 
 ## 指令
