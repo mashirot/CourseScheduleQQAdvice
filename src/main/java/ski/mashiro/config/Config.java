@@ -40,6 +40,7 @@ public class Config {
         }
         try {
             CONFIGURATION = OBJECT_MAPPER.readValue(FileUtils.readFileToString(CONFIG_FILE, "utf-8"), Configuration.class);
+            CONFIGURATION.setVersion(new Configuration().getVersion());
             WHITELIST = OBJECT_MAPPER.readValue(FileUtils.readFileToString(WHITELIST_FILE, "utf-8"), Whitelist.class);
         } catch (Exception e) {
             e.printStackTrace();

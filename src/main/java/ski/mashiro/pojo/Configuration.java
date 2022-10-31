@@ -1,10 +1,12 @@
 package ski.mashiro.pojo;
 
+import ski.mashiro.CourseScheduleQQAdvice;
+
 /**
  * @author MashiroT
  */
 public class Configuration {
-    private String version = "1.1.0";
+    private String version = String.valueOf(CourseScheduleQQAdvice.INSTANCE.getDescription().getVersion());
     private String apiUrl = "https://schedule.mashiro.ski/api";
     private Long bot = 12345L;
     private Long owner = 12345L;
@@ -31,25 +33,14 @@ public class Configuration {
         return apiUrl;
     }
 
-    public void setApiUrl(String apiUrl) {
-        this.apiUrl = apiUrl;
-    }
-
     public Long getBot() {
         return bot;
-    }
-
-    public void setBot(Long bot) {
-        this.bot = bot;
     }
 
     public Long getOwner() {
         return owner;
     }
 
-    public void setOwner(Long owner) {
-        this.owner = owner;
-    }
 
     @Override
     public String toString() {
