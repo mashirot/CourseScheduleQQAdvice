@@ -216,7 +216,7 @@ public class CourseData {
             Date beforeDate = Utils.transferStrToDate(course.getCourseDate().split(" ")[1].split("-")[0]);
             Calendar date = Calendar.getInstance();
             date.setTime(beforeDate);
-            date.set(Calendar.MINUTE, -20);
+            date.set(Calendar.MINUTE, date.get(Calendar.MINUTE) - 20);
             dateList.add(date.getTime());
         }
         beforeStartTimeList.put(qq, dateList);

@@ -1,9 +1,7 @@
 package ski.mashiro.timer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ski.mashiro.CourseScheduleQQAdvice;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -22,7 +20,6 @@ public class ThreadController {
         } else {
             morning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH) + 1, 6, 0, 0);
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ScheduledExecutorService pool = Executors.newScheduledThreadPool(2);
         pool.scheduleAtFixedRate(() -> {
             Thread thread = new Thread(new MorningThread());
