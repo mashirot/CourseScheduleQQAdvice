@@ -75,16 +75,13 @@ public class CourseData {
                 DailyEffCourseList = Utils.transToList(todayEffSchedule.getData(), Course.class);
                 DailyEffCourseList.sort(Comparator.comparingInt(o -> Integer.parseInt(o.getCourseDate().split(" ")[1].split("-")[0].split(":")[0])));
                 getBeforeCourseTime(qq);
+                getEndCourseTime(qq);
                 refreshDailyEffCache(qq);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return todayEffSchedule;
-    }
-
-    public static Result getTodaySchedule(User user) {
-        return HttpRequest.getTodaySchedule(user);
     }
 
     public static Result getUpcoming(User user, String qq) {
