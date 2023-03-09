@@ -48,7 +48,7 @@ public class Timer {
     private static void nextCourseChecker(long initDelay) {
         POOL.scheduleAtFixedRate(() -> {
             for (Map.Entry<Long, Queue<CourseDto>> queueEntry : CourseData.USER_TODAY_COURSE.entrySet()) {
-                if (queueEntry.getValue().isEmpty() || CourseUtil.isCourseStart(queueEntry.getValue().peek())) {
+                if (queueEntry.getValue().isEmpty() ||!CourseUtil.isCourseStart(queueEntry.getValue().peek())) {
                     continue;
                 }
                 String courseInfo = FormatterUtil.normalFormat(List.of(queueEntry.getValue().poll()), null);
