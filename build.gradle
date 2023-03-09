@@ -13,6 +13,11 @@ repositories {
     mavenCentral()
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 // 配置 Lombok 注解处理器
 configurations {
     lombokCompileOnly
