@@ -40,12 +40,16 @@ public class FormatterUtil {
         if (msg != null) {
             sb.append(msg).append("\n");
         }
-        sb.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).append("\t").append(FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().getDayOfWeek().getValue())).append("\n");
+        sb.append(getDateTitleInfo()).append("\n");
         sb.append("上课时间\t\t上课地点\t\t课程名\n");
         for (CourseDto courseDto : courseDtoList) {
             sb.append(courseDto.getTime()).append("\t").append(courseDto.getPlace()).append("\t").append(courseDto.getName()).append("\n");
         }
         return sb.toString();
+    }
+
+    public static String getDateTitleInfo() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "\t" + FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().getDayOfWeek().getValue());
     }
 
     public static String detailFormat(List<CourseDto> courseDtoList) {

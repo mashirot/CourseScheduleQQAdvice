@@ -39,6 +39,10 @@ public class Timer {
             for (Map.Entry<Long, Queue<CourseDto>> queueEntry : CourseData.USER_TODAY_COURSE.entrySet()) {
                 queueEntry.getValue().clear();
                 CourseData.refreshQueue(queueEntry.getKey());
+                if (queueEntry.getValue().isEmpty()) {
+                    Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage("早上好\n" + FormatterUtil.getDateTitleInfo() + "\n" + "今日无课，好好休息");
+                    continue;
+                }
                 String courseInfo = FormatterUtil.normalFormat(queueEntry.getValue(), "早上好");
                 Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage(courseInfo);
             }
