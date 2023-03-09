@@ -5,92 +5,84 @@ import net.mamoe.mirai.console.command.FriendCommandSender;
 import net.mamoe.mirai.console.command.SystemCommandSender;
 import net.mamoe.mirai.console.command.java.JCompositeCommand;
 import org.jetbrains.annotations.NotNull;
-import ski.mashiro.CourseScheduleQQAdvice;
-import ski.mashiro.config.Config;
-
-import java.util.*;
+import ski.mashiro.ScheduleQQAdvice;
+import ski.mashiro.file.ConfigFile;
+import ski.mashiro.file.WhitelistFile;
 
 /**
  * @author MashiroT
  */
 public class AdminCommand extends JCompositeCommand {
-
     public AdminCommand() {
-        super(CourseScheduleQQAdvice.INSTANCE, "admin");
+        super(ScheduleQQAdvice.INSTANCE, "admin");
+        super.setPrefixOptional(true);
     }
 
     @SubCommand("add")
     @Description("增加白名单")
-    public void addWhitelist(@NotNull CommandSender sender, String qq) {
-        if (!(sender instanceof FriendCommandSender)) {
-            sender.sendMessage("发送者只能为好友");
+    public void addWhitelist(CommandSender sender, String qq) {
+        if (hasNoPermission(sender)) {
             return;
         }
-        if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
-            sender.sendMessage("无权限");
-            return;
-        }
-        String[] whitelistArray = Config.WHITELIST.getWhitelist();
-        List<String> whitelist = new ArrayList<>(Arrays.asList(whitelistArray));
-        for (String s : whitelist) {
-            if (s.equals(qq)) {
-                return;
-            }
-        }
-        whitelist.add(qq);
-        String[] rs = new String[whitelist.size()];
-        for (int i = 0; i < whitelist.size(); i++) {
-            rs[i] = whitelist.get(i);
-        }
-        Config.WHITELIST.setWhitelist(rs);
-        Config.saveConfig();
+        WhitelistFile.WHITELIST.add(Long.valueOf(qq));
         sender.sendMessage("添加成功");
     }
 
     @SubCommand("del")
     @Description("删除白名单")
-    public void delWhitelist(@NotNull CommandSender sender, String qq) {
-        if (!(sender instanceof FriendCommandSender)) {
-            sender.sendMessage("发送者只能为好友");
+    public void delWhitelist(CommandSender sender, String qq) {
+        if (hasNoPermission(sender)) {
             return;
         }
-        if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
-            sender.sendMessage("无权限");
-            return;
-        }
-        String[] whitelistArray = Config.WHITELIST.getWhitelist();
-        List<String> whitelist = new ArrayList<>(Arrays.asList(whitelistArray));
-        Iterator<String> it = whitelist.listIterator();
-        while (it.hasNext()) {
-            String item = it.next();
-            if (item.equals(qq)) {
-                it.remove();
+        for (int i = 0; i < WhitelistFile.WHITELIST.size(); i++) {
+            if (WhitelistFile.WHITELIST.get(i).equals(Long.valueOf(qq))) {
+                WhitelistFile.WHITELIST.remove(i);
                 sender.sendMessage("删除成功");
-                String[] rs = new String[whitelist.size()];
-                for (int i = 0; i < whitelist.size(); i++) {
-                    rs[i] = whitelist.get(i);
-                }
-                Config.WHITELIST.setWhitelist(rs);
-                Config.saveConfig();
                 return;
             }
         }
         sender.sendMessage("不在名单内");
     }
 
+    @SubCommand("setLeadTime")
+    @Description("设置提前提醒时间")
+    public void setLeadTime(CommandSender sender, int leadTime) {
+        if (hasNoPermission(sender)) {
+            return;
+        }
+        if (leadTime < 0) {
+            sender.sendMessage("leadTime >= 0");
+            return;
+        }
+        ConfigFile.CONFIG.setLeadTime(leadTime);
+        sender.sendMessage("修改成功, 插件重新加载后生效");
+    }
+
+    @SubCommand("setUrl")
+    @Description("设置接口地址")
+    public void setUrl(CommandSender sender, String url) {
+        if (hasNoPermission(sender)) {
+            return;
+        }
+        ConfigFile.CONFIG.setUrl(url);
+        sender.sendMessage("修改成功, 请确保地址格式正确, 插件重新加载后生效");
+    }
+
     @SubCommand("reload")
     public void reload(@NotNull CommandSender sender) {
+        if (hasNoPermission(sender)) {
+            return;
+        }
+        ConfigFile.loadConfig();
+        sender.sendMessage("重载成功");
+    }
+
+    private boolean hasNoPermission(CommandSender sender) {
         if (!(sender instanceof SystemCommandSender)) {
             if (!(sender instanceof FriendCommandSender)) {
-                sender.sendMessage("发送者只能为好友");
-                return;
-            }
-            if (!Config.CONFIGURATION.getOwner().equals(Objects.requireNonNull(sender.getUser()).getId())) {
-                sender.sendMessage("无权限");
-                return;
+                return true;
             }
         }
-        Config.loadConfig();
-        sender.sendMessage("重载成功");
+        return ConfigFile.CONFIG.getOwner() != sender.getUser().getId();
     }
 }

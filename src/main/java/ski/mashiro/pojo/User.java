@@ -1,56 +1,28 @@
 package ski.mashiro.pojo;
 
-import java.util.Objects;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * @author MashiroT
  */
+@Data
+@NoArgsConstructor
 public class User {
-    private String userCode;
-    private String userApiToken;
+    private Long qq;
+    private Integer uid;
+    private String username;
+    private String password;
+    private String apiToken;
+    private Date termStartDate;
+    private Date termEndDate;
+    private String authToken;
 
-    public User() {
-    }
-
-    public User(String userCode, String userApiToken) {
-        this.userCode = userCode;
-        this.userApiToken = userApiToken;
-    }
-
-    public String getUserCode() {
-        return userCode;
-    }
-
-    public void setUserCode(String userCode) {
-        this.userCode = userCode;
-    }
-
-    public String getUserApiToken() {
-        return userApiToken;
-    }
-
-    public void setUserApiToken(String userApiToken) {
-        this.userApiToken = userApiToken;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(userCode, user.userCode) && Objects.equals(userApiToken, user.userApiToken);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userCode, userApiToken);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "userCode='" + userCode + '\'' +
-                ", userApiToken='" + userApiToken + '\'' +
-                '}';
+    public User(Long qq, String username, String apiToken) {
+        this.qq = qq;
+        this.username = username;
+        this.apiToken = apiToken;
     }
 }
