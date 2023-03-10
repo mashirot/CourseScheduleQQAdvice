@@ -61,9 +61,6 @@ public class CourseCommand extends JCompositeCommand {
         User currUser = UserFile.USERS_MAP.get(sender.getUser().getId());
         CourseSearchDto searchDto = new CourseSearchDto(currUser.getUid(), FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().getDayOfWeek().getValue()), currUser.getTermStartDate());
         List<CourseDto> courseDtoList = CourseData.getCourse(searchDto);
-        if (CourseData.USER_TODAY_COURSE.get(sender.getUser().getId()).isEmpty() && courseDtoList != null) {
-            CourseData.USER_TODAY_COURSE.get(sender.getUser().getId()).addAll(courseDtoList);
-        }
         String courseInfo = FormatterUtil.normalFormat(courseDtoList, null);
         sender.sendMessage(courseInfo);
     }
