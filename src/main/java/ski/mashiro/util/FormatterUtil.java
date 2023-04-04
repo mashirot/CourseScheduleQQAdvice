@@ -5,10 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import ski.mashiro.dto.CourseDto;
-import ski.mashiro.file.ConfigFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,7 +28,7 @@ public class FormatterUtil {
         return JSON_OBJECT_MAPPER.readValue(asString, collectionType);
     }
 
-    public static String normalFormat(Collection<CourseDto> courseDtoList, String msg) {
+    public static String normalFormat(LocalDate date, Collection<CourseDto> courseDtoList, String msg) {
         if (courseDtoList == null) {
             return "Server Err";
         }
@@ -41,7 +39,7 @@ public class FormatterUtil {
         if (msg != null) {
             sb.append(msg).append("\n");
         }
-        sb.append(getDateTitleInfo()).append("\n");
+        sb.append(getDateTitleInfo(date)).append("\n");
         sb.append("上课时间\t\t上课地点\t\t课程名\n");
         Iterator<CourseDto> it = courseDtoList.iterator();
         while (it.hasNext()) {
@@ -54,8 +52,8 @@ public class FormatterUtil {
         return sb.toString();
     }
 
-    public static String getDateTitleInfo() {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "\t" + FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().getDayOfWeek().getValue());
+    public static String getDateTitleInfo(LocalDate date) {
+        return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "\t" + FormatterUtil.INT_DAY_TO_STR_MAP.get(date.getDayOfWeek().getValue());
     }
 
     public static String detailFormat(List<CourseDto> courseDtoList) {

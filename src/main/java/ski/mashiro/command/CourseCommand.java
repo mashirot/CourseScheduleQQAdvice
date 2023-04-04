@@ -61,7 +61,7 @@ public class CourseCommand extends JCompositeCommand {
         User currUser = UserFile.USERS_MAP.get(sender.getUser().getId());
         CourseSearchDto searchDto = new CourseSearchDto(currUser.getUid(), FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().getDayOfWeek().getValue()), currUser.getTermStartDate());
         List<CourseDto> courseDtoList = CourseData.getCourse(searchDto);
-        String courseInfo = FormatterUtil.normalFormat(courseDtoList, null);
+        String courseInfo = FormatterUtil.normalFormat(LocalDate.now(), courseDtoList, null);
         sender.sendMessage(courseInfo);
     }
 
@@ -74,7 +74,7 @@ public class CourseCommand extends JCompositeCommand {
         User currUser = UserFile.USERS_MAP.get(sender.getUser().getId());
         CourseSearchDto searchDto = new CourseSearchDto(currUser.getUid(), FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().plusDays(1).getDayOfWeek().getValue()), currUser.getTermStartDate());
         List<CourseDto> courseDtoList = CourseData.getCourse(searchDto);
-        String courseInfo = FormatterUtil.normalFormat(courseDtoList, "明日课程:");
+        String courseInfo = FormatterUtil.normalFormat(LocalDate.now().plusDays(1), courseDtoList, null);
         sender.sendMessage(courseInfo);
     }
 
@@ -100,7 +100,7 @@ public class CourseCommand extends JCompositeCommand {
         if (CourseData.USER_TODAY_COURSE.get(sender.getUser().getId()).isEmpty()) {
             sender.sendMessage("今日课程已全部结束");
         }
-        String courseInfo = FormatterUtil.normalFormat(List.of(CourseData.USER_TODAY_COURSE.get(sender.getUser().getId()).peek()), null);
+        String courseInfo = FormatterUtil.normalFormat(LocalDate.now(), List.of(CourseData.USER_TODAY_COURSE.get(sender.getUser().getId()).peek()), null);
         sender.sendMessage(courseInfo);
     }
 
