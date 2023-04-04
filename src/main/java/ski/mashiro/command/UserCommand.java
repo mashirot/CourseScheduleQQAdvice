@@ -28,6 +28,10 @@ public class UserCommand extends JCompositeCommand {
         if (hasNoPermission(sender)) {
             return;
         }
+        if (UserFile.USERS_MAP.containsKey(sender.getUser().getId())) {
+            sender.sendMessage("已经绑定了一个账户");
+            return;
+        }
         User rs = UserData.getUser(new User(sender.getUser().getId(), username, apiToken));
         if (rs == null) {
             sender.sendMessage("绑定失败");
@@ -49,6 +53,10 @@ public class UserCommand extends JCompositeCommand {
     @Description("解除绑定")
     public void unbind(CommandSender sender) {
         if (hasNoPermission(sender) || hasNotBind(sender)) {
+            return;
+        }
+        if (!UserFile.USERS_MAP.containsKey(sender.getUser().getId())) {
+            sender.sendMessage("未绑定");
             return;
         }
         UserFile.USERS.removeIf(o -> o.getQq().equals(sender.getUser().getId()));
