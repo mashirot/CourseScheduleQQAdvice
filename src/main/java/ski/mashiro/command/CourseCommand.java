@@ -65,6 +65,19 @@ public class CourseCommand extends JCompositeCommand {
         sender.sendMessage(courseInfo);
     }
 
+    @SubCommand({"nextDay", "nd"})
+    @Description("获取明日课程")
+    public void tomorrow(CommandSender sender) {
+        if (hasNoPermission(sender) || hasNotBind(sender)) {
+            return;
+        }
+        User currUser = UserFile.USERS_MAP.get(sender.getUser().getId());
+        CourseSearchDto searchDto = new CourseSearchDto(currUser.getUid(), FormatterUtil.INT_DAY_TO_STR_MAP.get(LocalDate.now().plusDays(1).getDayOfWeek().getValue()), currUser.getTermStartDate());
+        List<CourseDto> courseDtoList = CourseData.getCourse(searchDto);
+        String courseInfo = FormatterUtil.normalFormat(courseDtoList, "明日课程:");
+        sender.sendMessage(courseInfo);
+    }
+
     @SubCommand({"refresh", "rt"})
     @Description("刷新课程队列")
     public void refresh(CommandSender sender) {
