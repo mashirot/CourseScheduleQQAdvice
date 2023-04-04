@@ -40,10 +40,10 @@ public class Timer {
                 queueEntry.getValue().clear();
                 CourseData.refreshQueue(queueEntry.getKey());
                 if (queueEntry.getValue().isEmpty()) {
-                    Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage("早上好\n" + FormatterUtil.getDateTitleInfo() + "\n" + "今日无课，好好休息");
+                    Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage("早上好\n" + FormatterUtil.getDateTitleInfo(LocalDate.now()) + "\n" + "今日无课，好好休息");
                     continue;
                 }
-                String courseInfo = FormatterUtil.normalFormat(queueEntry.getValue(), "早上好");
+                String courseInfo = FormatterUtil.normalFormat(LocalDate.now(), queueEntry.getValue(), "早上好");
                 Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage(courseInfo);
             }
         }, initDelay, 24 * 60 * 60 * 1000, TimeUnit.MILLISECONDS);
@@ -55,7 +55,7 @@ public class Timer {
                 if (queueEntry.getValue().isEmpty() ||!CourseUtil.isCourseStart(queueEntry.getValue().peek())) {
                     continue;
                 }
-                String courseInfo = FormatterUtil.normalFormat(List.of(queueEntry.getValue().poll()), null);
+                String courseInfo = FormatterUtil.normalFormat(LocalDate.now(), List.of(queueEntry.getValue().poll()), null);
                 Bot.getInstance(ConfigFile.CONFIG.getBot()).getFriend(queueEntry.getKey()).sendMessage(courseInfo);
             }
         }, initDelay, 60 * 1000, TimeUnit.MILLISECONDS);
