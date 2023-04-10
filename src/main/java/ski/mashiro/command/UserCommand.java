@@ -65,6 +65,26 @@ public class UserCommand extends JCompositeCommand {
         CourseData.USER_TODAY_COURSE.remove(sender.getUser().getId());
     }
 
+    @SubCommand({"refresh", "ref"})
+    public void refresh(CommandSender sender) {
+        if (hasNoPermission(sender) || hasNotBind(sender)) {
+            return;
+        }
+        if (!UserFile.USERS_MAP.containsKey(sender.getUser().getId())) {
+            sender.sendMessage("未绑定");
+            return;
+        }
+        User newUser = UserData.getUser(UserFile.USERS_MAP.get(sender.getUser().getId()));
+        for (int i = 0; i < UserFile.USERS.size(); i++) {
+            if (UserFile.USERS.get(i).getQq().equals(sender.getUser().getId())) {
+                UserFile.USERS.set(i, newUser);
+                break;
+            }
+        }
+        UserFile.USERS_MAP.put(sender.getUser().getId(), newUser);
+        sender.sendMessage("刷新成功");
+    }
+
     private boolean hasNoPermission(CommandSender sender) {
         if (!(sender instanceof SystemCommandSender)) {
             if (!(sender instanceof FriendCommandSender)) {

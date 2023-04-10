@@ -78,7 +78,7 @@ public class CourseCommand extends JCompositeCommand {
         sender.sendMessage(courseInfo);
     }
 
-    @SubCommand({"refresh", "rt"})
+    @SubCommand({"refresh", "ref"})
     @Description("刷新课程队列")
     public void refresh(CommandSender sender) {
         if (hasNoPermission(sender) || hasNotBind(sender)) {
