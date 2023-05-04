@@ -11,6 +11,9 @@ import ski.mashiro.dto.Result;
 import ski.mashiro.file.ConfigFile;
 import ski.mashiro.pojo.User;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static ski.mashiro.constant.StatusCodeConstants.*;
@@ -63,6 +66,25 @@ public class HttpUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return Result.failed(500, "Server Err");
+        }
+    }
+
+    public static Result<Boolean> sendHolidayReq(LocalDate localDate) {
+        OkHttpClient httpClient = new OkHttpClient();
+        Request req = new Request.Builder()
+//                https://api.apihubs.cn/holiday/get?date=20230504&cn=1&size=1
+                .url("https://api.apihubs.cn/holiday/get?date=" + localDate.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "&cn=1&size=1")
+                .build();
+        try (Response resp = httpClient.newCall(req).execute()) {
+            assert resp.body() != null;
+            String respJson = resp.body().string();
+//            "holiday_legal_cn":"非法定节假日","holiday_recess_cn":"非假期节假日"
+//            "holiday_legal_cn":"法定节假日","holiday_recess_cn":"假期节假日"
+            boolean isLegalHoliday = "法定节假日".equals(respJson.substring(respJson.indexOf("\"holiday_legal_cn\":\"") + 20, respJson.indexOf("\",\"holiday_recess_cn\"")));
+            return Result.success(HOLIDAY_GET_SUCCESS, isLegalHoliday);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.failed(HOLIDAY_GET_FAILED, null);
         }
     }
 }
