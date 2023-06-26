@@ -1,6 +1,5 @@
 package ski.mashiro.data;
 
-import net.mamoe.mirai.console.command.CommandSender;
 import ski.mashiro.constant.StatusCodeConstants;
 import ski.mashiro.dto.CourseDto;
 import ski.mashiro.dto.CourseSearchDto;
