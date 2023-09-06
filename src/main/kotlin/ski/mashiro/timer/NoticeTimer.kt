@@ -25,7 +25,8 @@ object NoticeTimer {
             val nextNotifyJob = async(Dispatchers.Default) {
                 nextCourseNotifyTimer()
             }
-            awaitAll(updJob, morningNotifyJob, nextNotifyJob)
+            val saveJob = async { saveCfg() }
+            awaitAll(updJob, morningNotifyJob, nextNotifyJob, saveJob)
         }
     }
 
@@ -91,6 +92,13 @@ object NoticeTimer {
                 friend.sendMessage("早上好\n$msg")
             }
             delay(Duration.parse("1d"))
+        }
+    }
+
+    private suspend fun saveCfg() {
+        while (true) {
+            ConfigOp.saveConfig()
+            delay(Duration.parse("30m"))
         }
     }
 
