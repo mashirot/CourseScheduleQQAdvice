@@ -1,10 +1,9 @@
 package ski.mashiro.service
 
-import net.mamoe.mirai.console.command.CommandSender
-import ski.mashiro.common.Result
 import ski.mashiro.entity.Course
 
 interface MessageService {
-    suspend fun sendCourses(sender: CommandSender, result: Result<List<Course>?>)
-    suspend fun sendCoursesWithoutDayOfWeek(sender: CommandSender, result: Result<List<Course>?>)
+    suspend fun getCourseMsg(course: Course): String
+    suspend fun getCoursesMsg(courseList: List<Course>): String
+    suspend fun getCoursesWithoutDayOfWeekMsg(courseList: List<Course>): String
 }

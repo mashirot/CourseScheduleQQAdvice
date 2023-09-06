@@ -5,10 +5,12 @@ import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.command.isConsole
 import net.mamoe.mirai.console.command.isUser
 import ski.mashiro.CourseScheduleQQAdvice
+import ski.mashiro.data.CourseData
 import ski.mashiro.data.UserData
 import ski.mashiro.entity.User
 import ski.mashiro.file.ConfigOp
 import ski.mashiro.service.impl.UserServiceImpl
+import java.time.LocalDateTime
 
 object UserCommand : CompositeCommand(
     CourseScheduleQQAdvice, "user", "u",
@@ -36,7 +38,9 @@ object UserCommand : CompositeCommand(
             sender.sendMessage("用户名或token有误")
             return
         }
-        UserData.userMap[senderQQ] = User(senderQQ, username, apiToken)
+        val user = User(senderQQ, username, apiToken)
+        UserData.userMap[senderQQ] = user
+        CourseData.getCourseData(LocalDateTime.now(), user)
         sender.sendMessage("绑定用户: $username 成功")
     }
 
@@ -51,6 +55,8 @@ object UserCommand : CompositeCommand(
             return
         }
         val user = UserData.userMap.remove(senderQQ)
+        // 可能有点线程安全问题
+        CourseData.courseMap.remove(senderQQ)
         sender.sendMessage("解绑用户: ${user!!.username} 成功")
     }
 
