@@ -20,13 +20,12 @@ object NoticeTimer {
 
     fun start() {
         CoroutineScope(Dispatchers.IO).launch {
-            val updJob = async { courseUpdTimer() }
-            val morningNotifyJob = async { morningNotifyTimer() }
-            val nextNotifyJob = async(Dispatchers.Default) {
+            async { courseUpdTimer() }
+            async { morningNotifyTimer() }
+            async(Dispatchers.Default) {
                 nextCourseNotifyTimer()
             }
-            val saveJob = async { saveCfg() }
-            awaitAll(updJob, morningNotifyJob, nextNotifyJob, saveJob)
+            async { saveCfg() }
         }
     }
 
