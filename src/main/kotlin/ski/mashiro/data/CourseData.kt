@@ -24,7 +24,7 @@ object CourseData {
         courseMap[user.qq] = LinkedList(
             result.data!!
                 .filter {
-                    now.isAfter(TimeUtils.getCourseEndTime(now, it.time))
+                    now.isBefore(TimeUtils.getCourseEndTime(now, it.time))
                 }.sortedWith { o1, o2 ->
                     TimeUtils.compareStrTime(now, o1.time, o2.time)
                 }
