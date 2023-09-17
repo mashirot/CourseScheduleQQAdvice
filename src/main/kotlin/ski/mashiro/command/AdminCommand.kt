@@ -6,11 +6,13 @@ import net.mamoe.mirai.console.command.descriptor.ExperimentalCommandDescriptors
 import net.mamoe.mirai.console.command.isNotConsole
 import net.mamoe.mirai.console.command.isUser
 import ski.mashiro.CourseScheduleQQAdvice
+import ski.mashiro.data.CourseData
+import ski.mashiro.data.UserData
 import ski.mashiro.file.ConfigOp
+import java.time.LocalDateTime
 
 object AdminCommand : CompositeCommand(
-    CourseScheduleQQAdvice, "admin",
-    description = "这是一个测试指令", // 设置描述，将会在 /help 展示
+    CourseScheduleQQAdvice, "admin"
 ) {
     @ExperimentalCommandDescriptors
     override val prefixOptional: Boolean
@@ -18,7 +20,7 @@ object AdminCommand : CompositeCommand(
 
     private val logger = CourseScheduleQQAdvice.logger
 
-    @SubCommand("addWhitelist", "添加白名单")
+    @SubCommand("addWhitelist")
     suspend fun addWhitelist(sender: CommandSender, qq: Long) {
         if (hasNoPerm(sender)) {
             logger.warning("${sender.name} 尝试越权操作")
@@ -32,7 +34,7 @@ object AdminCommand : CompositeCommand(
         sender.sendMessage("添加成功")
     }
 
-    @SubCommand("delWhitelist", "移出白名单")
+    @SubCommand("delWhitelist")
     suspend fun delWhitelist(sender: CommandSender, qq: Long) {
         if (hasNoPerm(sender)) {
             logger.warning("${sender.name} 尝试越权操作")
@@ -56,7 +58,7 @@ object AdminCommand : CompositeCommand(
         sender.sendMessage("更改Owner成功")
     }
 
-    @SubCommand("setOwner")
+    @SubCommand("setApiAddress")
     suspend fun setApiAddress(sender: CommandSender, apiAddress: String) {
         if (hasNoPerm(sender)) {
             logger.warning("${sender.name} 尝试越权操作")
@@ -64,6 +66,19 @@ object AdminCommand : CompositeCommand(
         }
         ConfigOp.config.apiAddress = apiAddress
         sender.sendMessage("更改apiAddress成功")
+    }
+
+    @SubCommand("refresh", "ref")
+    suspend fun refreshCourseData(sender: CommandSender) {
+        if (hasNoPerm(sender)) {
+            logger.warning("${sender.name} 尝试越权操作")
+            return
+        }
+        val now = LocalDateTime.now()
+        UserData.userMap.values.forEach { user ->
+            CourseData.getCourseData(now, user)
+        }
+        sender.sendMessage("刷新成功")
     }
 
     private fun hasNoPerm(sender: CommandSender): Boolean {

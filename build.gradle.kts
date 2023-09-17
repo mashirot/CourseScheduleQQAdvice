@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "ski.mashiro"
-version = "3.0.0"
+version = "3.0.2"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
