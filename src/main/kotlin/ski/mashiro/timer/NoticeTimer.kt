@@ -45,12 +45,11 @@ object NoticeTimer {
                     return@forEach
                 }
                 val now = LocalDateTime.now()
-                while (!it.value.isEmpty()) {
+                if (!it.value.isEmpty()) {
                     val course = it.value.peek()
                     // 提前20分钟通知
                     if (now.plusMinutes(20).isAfter(TimeUtils.getCourseStartTime(now, course.time))) {
                         friend.sendMessage(MessageServiceImpl.getCourseMsg(it.value.poll()))
-                        break
                     }
                 }
             }
